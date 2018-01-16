@@ -88,6 +88,7 @@ class CryptoCoinPrice(object):
         
         item = Gtk.MenuItem()
         item.set_label("Currency")
+        item.connect("activate",self.set_currency_window)
         item.show()
         self.menu.append(item)
  
@@ -109,9 +110,23 @@ class CryptoCoinPrice(object):
     def handler_menu_reload(self, evt):
         self.handler_timeout()
         
-    def currency_menu(self):
-		pass
-
+    def set_currency_window(self,source):
+		currency_dialog = dialog = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.OK_CANCEL, "Currency")
+		dialog_box = dialog.get_content_area() 
+		user_entry = Gtk.Entry()
+		user_entry.set_size_request(3,0)
+		dialog_box.pack_end(user_entry, False, False, 0)
+		dialog.show_all()
+		response = dialog.run()
+		currency_input = text = user_entry.get_text()
+		currency_dialog.destroy()
+		if(response == Gtk.ResponseType.OK) and currency_input != '':
+				self.set_currency(currency_input)
+				
+    
+    
+    
+    
     @staticmethod
     def about_window(source):
         dialog = Gtk.AboutDialog()
@@ -159,10 +174,10 @@ class CryptoCoinPrice(object):
             self.handler_timeout()
 
     def get_price (self, currency_pair):
-        url = 'https://api.coinbase.com/v2/prices/'+currency_pair+'/spot'
-        response = requests.get(url)
-        json = response.json()
-        return str(json['data']['base']) + "-" + str(json['data']['amount']) + "" + self.set_currency(
+		url = 'https://api.coinbase.com/v2/prices/'+currency_pair+'/spot'
+		response = requests.get(url)
+		json = response.json()
+		return str(json['data']['base']) + "-" + str(json['data']['amount']) + "" + self.set_currency(
             str(json['data']['currency']))
 
     @staticmethod
@@ -173,9 +188,8 @@ class CryptoCoinPrice(object):
             return u'\u0024'
 	elif currency == 'GDP':
 		return u'\u00A3'
-	
-        else:
-            return currency
+	else:
+		return currency
 
     def handler_timeout(self):
         try:
